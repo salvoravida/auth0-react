@@ -84,6 +84,10 @@ export interface Auth0ProviderOptions extends Auth0ClientOptions {
    * For a sample on using multiple Auth0Providers review the [React Account Linking Sample](https://github.com/auth0-samples/auth0-link-accounts-sample/tree/react-variant)
    */
   context?: React.Context<Auth0ContextInterface>;
+  /**
+   * use a custom Auth0Client instance
+   */
+  client?: Auth0Client;
 }
 
 /**
@@ -95,7 +99,7 @@ declare const __VERSION__: string;
 /**
  * @ignore
  */
-const toAuth0ClientOptions = (
+export const toAuth0ClientOptions = (
   opts: Auth0ProviderOptions
 ): Auth0ClientOptions => {
   deprecateRedirectUri(opts);
@@ -134,6 +138,7 @@ const defaultOnRedirectCallback = (appState?: AppState): void => {
  */
 const Auth0Provider = (opts: Auth0ProviderOptions): JSX.Element => {
   const {
+    client: customClient,
     children,
     skipRedirectCallback,
     onRedirectCallback = defaultOnRedirectCallback,
@@ -141,7 +146,7 @@ const Auth0Provider = (opts: Auth0ProviderOptions): JSX.Element => {
     ...clientOpts
   } = opts;
   const [client] = useState(
-    () => new Auth0Client(toAuth0ClientOptions(clientOpts))
+    () => customClient || new Auth0Client(toAuth0ClientOptions(clientOpts))
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
   const didInitialise = useRef(false);
